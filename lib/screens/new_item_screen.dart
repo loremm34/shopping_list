@@ -9,6 +9,16 @@ class NewItemScreen extends StatefulWidget {
 }
 
 class _NewItemScreenState extends State<NewItemScreen> {
+  final _formKey = GlobalKey<FormState>();
+
+  void _saveItem() {
+    _formKey.currentState!.validate();
+  }
+
+  void _resetForm() {
+    _formKey.currentState!.reset();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -18,6 +28,7 @@ class _NewItemScreenState extends State<NewItemScreen> {
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Form(
+          key: _formKey,
           child: Column(
             children: [
               TextFormField(
@@ -25,7 +36,14 @@ class _NewItemScreenState extends State<NewItemScreen> {
                 decoration: const InputDecoration(
                   label: Text("Name"),
                 ),
-                // validator: (value) {},
+                validator: (value) {
+                  if (value == null ||
+                      value.isEmpty ||
+                      value.trim().length == 1 ||
+                      value.trim().length > 50)
+                    return "Must be between 1 and 50 characters";
+                  return null;
+                },
               ),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
@@ -37,6 +55,14 @@ class _NewItemScreenState extends State<NewItemScreen> {
                       ),
                       keyboardType: TextInputType.number,
                       initialValue: '1',
+                      validator: (value) {
+                        if (value == null ||
+                            value.isEmpty ||
+                            int.tryParse(value) == null ||
+                            int.tryParse(value)! <= 0)
+                          return "Quantity must be a positive number";
+                        return null;
+                      },
                     ),
                   ),
                   const SizedBox(
@@ -66,7 +92,24 @@ class _NewItemScreenState extends State<NewItemScreen> {
                     ),
                   )
                 ],
-              )
+              ),
+              Padding(
+                padding: const EdgeInsets.all(12),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Spacer(),
+                    TextButton(
+                      onPressed: _resetForm,
+                      child: const Text("Reset"),
+                    ),
+                    ElevatedButton(
+                      onPressed: _saveItem,
+                      child: Text("Submit"),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
