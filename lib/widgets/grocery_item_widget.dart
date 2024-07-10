@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:shopping_list/models/category.dart';
-import 'package:shopping_list/models/grocery_item.dart';
 
 class GroceryitemWidget extends StatelessWidget {
   const GroceryitemWidget(

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:shopping_list/widgets/GroceryItemWidget.dart';
-import 'package:shopping_list/data/dummy_items.dart';
+import 'package:shopping_list/widgets/grocery_item_widget.dart';
 import 'package:shopping_list/screens/new_item_screen.dart';
+import 'package:shopping_list/models/grocery_item.dart';
 
 class GroceriesList extends StatefulWidget {
   const GroceriesList({super.key});
@@ -11,14 +11,31 @@ class GroceriesList extends StatefulWidget {
 }
 
 class _GroceriesListState extends State<GroceriesList> {
-  void _addItem() {
-    Navigator.of(context).push(
+  final List<GroceryItem> _groceryList = [];
+
+  void _addItem() async {
+    final newItem = await Navigator.of(context).push<GroceryItem>(
       MaterialPageRoute(
         builder: (ctx) {
-          return NewItemScreen();
+          return const NewItemScreen();
         },
       ),
     );
+    if (newItem == null) {
+      return;
+    }
+
+    _groceryList.add(newItem);
+    setState(() {});
+  }
+
+  void _removeItem(GroceryItem groceryItem) {
+    // final _groceryItemIndex = _groceryList.indexOf(grocery_item);
+
+    setState(() {
+      _groceryList.remove(groceryItem);
+    });
+    print("removed");
   }
 
   @override
@@ -36,19 +53,29 @@ class _GroceriesListState extends State<GroceriesList> {
           )
         ],
       ),
-      body: ListView.builder(
-        itemCount: groceryItems.length,
-        itemBuilder: (context, index) {
-          return Padding(
-            padding: const EdgeInsets.all(12),
-            child: GroceryitemWidget(
-              name: groceryItems[index].name,
-              quantity: groceryItems[index].quantity.toString(),
-              categoryColor: groceryItems[index].category.color,
+      body: _groceryList.isEmpty
+          ? const Center(
+              child: Text("No items yet"),
+            )
+          : ListView.builder(
+              itemCount: _groceryList.length,
+              itemBuilder: (context, index) {
+                return Dismissible(
+                  key: ValueKey(_groceryList[index].id),
+                  onDismissed: (direction) {
+                    _removeItem(_groceryList[index]);
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: GroceryitemWidget(
+                      name: _groceryList[index].name,
+                      quantity: _groceryList[index].quantity.toString(),
+                      categoryColor: _groceryList[index].category.color,
+                    ),
+                  ),
+                );
+              },
             ),
-          );
-        },
-      ),
     );
   }
 }
