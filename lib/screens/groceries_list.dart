@@ -40,6 +40,32 @@ class _GroceriesListState extends State<GroceriesList> {
 
   @override
   Widget build(BuildContext context) {
+    Widget showContent = const Center(
+      child: Text("No items yet"),
+    );
+
+    if (_groceryList.isNotEmpty) {
+      showContent = ListView.builder(
+        itemCount: _groceryList.length,
+        itemBuilder: (context, index) {
+          return Dismissible(
+            key: ValueKey(_groceryList[index].id),
+            onDismissed: (direction) {
+              _removeItem(_groceryList[index]);
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: GroceryitemWidget(
+                name: _groceryList[index].name,
+                quantity: _groceryList[index].quantity.toString(),
+                categoryColor: _groceryList[index].category.color,
+              ),
+            ),
+          );
+        },
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -53,29 +79,7 @@ class _GroceriesListState extends State<GroceriesList> {
           )
         ],
       ),
-      body: _groceryList.isEmpty
-          ? const Center(
-              child: Text("No items yet"),
-            )
-          : ListView.builder(
-              itemCount: _groceryList.length,
-              itemBuilder: (context, index) {
-                return Dismissible(
-                  key: ValueKey(_groceryList[index].id),
-                  onDismissed: (direction) {
-                    _removeItem(_groceryList[index]);
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: GroceryitemWidget(
-                      name: _groceryList[index].name,
-                      quantity: _groceryList[index].quantity.toString(),
-                      categoryColor: _groceryList[index].category.color,
-                    ),
-                  ),
-                );
-              },
-            ),
+      body: showContent,
     );
   }
 }
