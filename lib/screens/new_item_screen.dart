@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shopping_list/data/categories.dart';
 import 'package:shopping_list/models/category.dart';
-import 'package:shopping_list/models/grocery_item.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -20,10 +19,10 @@ class _NewItemScreenState extends State<NewItemScreen> {
   final url = Uri.https(
       'test1-56877-default-rtdb.firebaseio.com', 'shopping-list.json');
 
-  void _saveItem() {
+  void _saveItem() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      http.post(
+      await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
         body: json.encode(
@@ -34,14 +33,11 @@ class _NewItemScreenState extends State<NewItemScreen> {
           },
         ),
       );
-      Navigator.of(context).pop(
-        GroceryItem(
-          id: DateTime.now().toString(),
-          name: _enteredValue,
-          quantity: _enteredQuantity,
-          category: _selectedCategory,
-        ),
-      );
+
+      if (!context.mounted) {
+        return;
+      }
+      Navigator.of(context).pop();
     }
   }
 
@@ -142,14 +138,14 @@ class _NewItemScreenState extends State<NewItemScreen> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Spacer(),
+                    const Spacer(),
                     TextButton(
                       onPressed: _resetForm,
                       child: const Text("Reset"),
                     ),
                     ElevatedButton(
                       onPressed: _saveItem,
-                      child: Text("Submit"),
+                      child: const Text("Submit"),
                     ),
                   ],
                 ),
