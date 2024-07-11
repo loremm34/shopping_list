@@ -4,6 +4,8 @@ import 'package:shopping_list/models/category.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'package:shopping_list/models/grocery_item.dart';
+
 class NewItemScreen extends StatefulWidget {
   const NewItemScreen({super.key});
 
@@ -16,13 +18,17 @@ class _NewItemScreenState extends State<NewItemScreen> {
   var _enteredValue = '';
   var _enteredQuantity = 1;
   var _selectedCategory = categories[Categories.vegetables]!;
+  var _isSending = false;
   final url = Uri.https(
       'test1-56877-default-rtdb.firebaseio.com', 'shopping-list.json');
 
   void _saveItem() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      await http.post(
+      setState(() {
+        _isSending = true;
+      });
+      final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
         body: json.encode(
@@ -34,10 +40,18 @@ class _NewItemScreenState extends State<NewItemScreen> {
         ),
       );
 
+      final Map<String, dynamic> resData = json.decode(response.body);
+
       if (!context.mounted) {
         return;
       }
-      Navigator.of(context).pop();
+      Navigator.of(context).pop(
+        GroceryItem(
+            id: resData['name'],
+            name: _enteredValue,
+            quantity: _enteredQuantity,
+            category: _selectedCategory),
+      );
     }
   }
 
@@ -140,12 +154,18 @@ class _NewItemScreenState extends State<NewItemScreen> {
                   children: [
                     const Spacer(),
                     TextButton(
-                      onPressed: _resetForm,
+                      onPressed: _isSending ? null : _resetForm,
                       child: const Text("Reset"),
                     ),
                     ElevatedButton(
-                      onPressed: _saveItem,
-                      child: const Text("Submit"),
+                      onPressed: _isSending ? null : _saveItem,
+                      child: _isSending
+                          ? const SizedBox(
+                              height: 16,
+                              width: 16,
+                              child: CircularProgressIndicator(),
+                            )
+                          : const Text("Submit"),
                     ),
                   ],
                 ),
