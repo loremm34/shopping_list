@@ -139,9 +139,11 @@ class _NewItemScreenState extends State<NewItemScreen> {
                           )
                       ],
                       onChanged: (value) {
-                        setState(() {
-                          _selectedCategory = value!;
-                        });
+                        setState(
+                          () {
+                            _selectedCategory = value!;
+                          },
+                        );
                       },
                     ),
                   )
